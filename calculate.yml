@@ -1,0 +1,31 @@
+name: Raschet urokov
+
+on:
+  push:
+    paths:
+      - 'data/**'
+      - 'calculate.py'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  calculate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install deps
+        run: pip install pandas openpyxl
+      - name: Calculate
+        run: python calculate.py data reports
+      - name: Commit report
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add reports
+          git diff --cached --quiet || git commit -m "Avto-otchet [skip ci]"
+          git push
